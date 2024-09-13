@@ -14,27 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goos: [linux, windows, darwin]
-        goarch: [386, amd64, arm64]
-        include:
-          - goos: linux
-            goarch: arm
-            goarm: 7
-          - goos: linux
-            goarch: mips
-            gomips: softfloat
-          - goos: linux
-            goarch: mipsle
-            gomips: softfloat
-          - goos: linux
-            goarch: mips64
-          - goos: linux
-            goarch: mips64le
-        exclude:
-          - goos: darwin
-            goarch: arm 
-          - goos: darwin
-            goarch: 386
+        goos: [linux]
+        goarch: [mipsle]
+        gomips: [softfloat]
     steps:
     - uses: actions/checkout@v4
 
@@ -43,12 +25,10 @@ jobs:
 
     - name: Set ldflags as environment variable
       run: |
-        if [ ${{ matrix.goos }} == 'linux' ]&&[ ${{ matrix.goarch }} == 'amd64' ]; then
-          LD_FLAGS="-X main.Version=${{ env.APP_VERSION }} -linkmode 'external' -extldflags '-static'"
-        else
-          LD_FLAGS="-X main.Version=${{ env.APP_VERSION }}"
-        fi
+        LD_FLAGS="-X main.Version=${{ env.APP_VERSION }}"
         echo "LD_FLAGS=$LD_FLAGS" >> ${GITHUB_ENV}
+        echo "CGO_ENABLED=0" >> ${GITHUB_ENV}
+        echo "GOMIPS=softfloat" >> ${GITHUB_ENV}
 
     - uses: pdahd/go-release-action@v0.1-test-assets
       with:
